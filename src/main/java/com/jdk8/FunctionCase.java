@@ -1,5 +1,7 @@
 package com.jdk8;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.function.Function;
 
 public class FunctionCase {
@@ -15,6 +17,7 @@ public class FunctionCase {
 
     private HtmlImageURLProxier proxy;
 
+    @Autowired
     public FunctionCase(HtmlImageURLProxier proxy) {
         this.proxy = proxy;
     }

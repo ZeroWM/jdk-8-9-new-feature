@@ -12,6 +12,10 @@ repositories {
     mavenCentral()
 }
 
-dependencies { 
+dependencies {
+
+    implementation('org.springframework.boot:spring-boot-starter-hateoas')
+
     testImplementation('io.rest-assured:rest-assured:3.0.2')
+
 }
