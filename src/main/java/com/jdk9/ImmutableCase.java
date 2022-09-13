@@ -11,5 +11,6 @@ public class ImmutableCase {
     System.out.println("xyz");
 
     System.out.println("aabbcc");
+    System.out.println("wxy");
   }
 }
