@@ -9,5 +9,7 @@ public class ImmutableCase {
 
     System.out.println("abc");
     System.out.println("xyz");
+
+    System.out.println("aabbcc");
   }
 }
