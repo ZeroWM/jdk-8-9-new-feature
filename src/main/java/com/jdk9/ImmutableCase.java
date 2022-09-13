@@ -4,7 +4,9 @@ import java.util.List;
 
 public class ImmutableCase {
   public static void main(String[] args) {
-    List immutableList = List.of(1, 2, 3, 4, 5).stream().takeWhile(i -> i<4).forEach(System.out::println);
+    //    List immutableList = List.of(1, 2, 3, 4, 5).stream().takeWhile(i ->
+    // i<4).forEach(System.out::println);
 
+    System.out.println("abc");
   }
 }
