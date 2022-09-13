@@ -8,5 +8,6 @@ public class ImmutableCase {
     // i<4).forEach(System.out::println);
 
     System.out.println("abc");
+    System.out.println("xyz");
   }
 }
