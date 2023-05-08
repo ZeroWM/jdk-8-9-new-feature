@@ -5,4 +5,8 @@ public class CherryPick {
     System.out.println("a");
     System.out.println("b");
   }
+
+  public void test(){
+    
+  }
 }
