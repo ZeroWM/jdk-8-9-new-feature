@@ -27,18 +27,13 @@ jobs:
         fetch-depth: 0
         ssh-key: ${{ secrets.SSH_KEY }}
 
-    - id: compute_tag
-      uses: craig-day/compute-tag@v10
-      with:
-        github_token: ${{ github.token }}
-        version_type: ${{ github.event.inputs.version }}
-
-    - name: Tag it
+    - name: Setup Git
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        echo '${{ toJSON(steps.compute_tag.outputs) }}'
-        echo "next tag: ${{ steps.compute_tag.outputs.next_tag }}"
-        echo "Previous tag: ${{ steps.compute_tag.outputs.previous_tag }}"
-        git tag ${{ steps.compute_tag.outputs.next_tag }}
-        git push origin ${{ steps.compute_tag.outputs.next_tag }}
+
+    - name: Bump version
+      run: npm version ${{ github.event.inputs.version }}
+
+    - name: Push latest version
+      run: git push origin master --follow-tags
