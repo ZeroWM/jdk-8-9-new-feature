@@ -1,0 +1,49 @@
+name: Bump new version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        # Friendly description to be shown in the UI instead of 'name'
+        description: 'Semver type of new version (major / minor / patch)'
+        # Input has to be provided for the workflow to run
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "bump-version"
+  bump-version:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        ssh-key: ${{ secrets.SSH_KEY }}
+
+    - name: Get next version
+      id: semantic_version
+      uses: paulhatch/semantic-version@v5.4.0
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        minor_pattern: "(MINOR)"
+        version_format: "${major}.${minor}.${patch}"
+        bump_each_commit: false
+        search_commit_body: false
+        user_format_type: "csv"
+
+    - name: Tag it
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        echo "Semantic version: v${{ steps.semantic_version.outputs.version }}"
+        git tag v${{ steps.semantic_version.outputs.version }}
+        git push origin v${{ steps.semantic_version.outputs.version }}
+
