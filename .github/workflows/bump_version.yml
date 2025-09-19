@@ -27,13 +27,23 @@ jobs:
         fetch-depth: 0
         ssh-key: ${{ secrets.SSH_KEY }}
 
-    - name: Setup Git
+    - name: Get next version
+      id: semantic_version
+      uses: paulhatch/semantic-version@v5.4.0
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        minor_pattern: "(MINOR)"
+        version_format: "${major}.${minor}.${patch}"
+        bump_each_commit: false
+        search_commit_body: false
+        user_format_type: "csv"
+
+    - name: Tag it
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
+        echo "Semantic version: v${{ steps.semantic_version.outputs.version }}"
+        git tag v${{ steps.semantic_version.outputs.version }}
+        git push origin v${{ steps.semantic_version.outputs.version }}
 
-    - name: Bump version
-      run: npm version ${{ github.event.inputs.version }}
-
-    - name: Push latest version
-      run: git push origin master --follow-tags
