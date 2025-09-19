@@ -13,5 +13,6 @@ public class ImmutableCase {
     System.out.println("aabbcc");
     System.out.println("wxy");
     System.out.println("testlog");
+    System.out.println("testlog");
   }
 }
