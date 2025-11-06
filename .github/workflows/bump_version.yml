@@ -4,46 +4,63 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        # Friendly description to be shown in the UI instead of 'name'
         description: 'Semver type of new version (major / minor / patch)'
-        # Input has to be provided for the workflow to run
         required: true
         type: choice
         options:
           - patch
           - minor
           - major
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+
 jobs:
-  # This workflow contains a single job called "bump-version"
   bump-version:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-        ssh-key: ${{ secrets.SSH_KEY }}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ssh-key: ${{ secrets.SSH_KEY }}
 
-    - name: Get next version
-      id: semantic_version
-      uses: paulhatch/semantic-version@v5.4.0
-      with:
-        tag_prefix: "v"
-        major_pattern: "(MAJOR)"
-        minor_pattern: "(MINOR)"
-        version_format: "${major}.${minor}.${patch}"
-        bump_each_commit: false
-        search_commit_body: false
-        user_format_type: "csv"
-
-    - name: Tag it
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        echo "Semantic version: v${{ steps.semantic_version.outputs.version }}"
-        git tag v${{ steps.semantic_version.outputs.version }}
-        git push origin v${{ steps.semantic_version.outputs.version }}
-
+      - name: Bump version and create tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # 获取最新 tag
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Latest tag: $latest_tag"
+          
+          # 移除 v 前缀并分割版本号
+          version=${latest_tag#v}
+          IFS='.' read -r major minor patch <<< "$version"
+          
+          # 根据输入增加版本
+          case "${{ github.event.inputs.version }}" in
+            major)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              ;;
+          esac
+          
+          new_tag="v$major.$minor.$patch"
+          echo "New tag: $new_tag"
+          
+          # 检查 tag 是否已存在
+          if git rev-parse "$new_tag" >/dev/null 2>&1; then
+            echo "❌ Error: Tag $new_tag already exists!"
+            exit 1
+          fi
+          
+          # 创建并推送 tag
+          git tag -a "$new_tag" -m "Release $new_tag"
+          git push origin "$new_tag"
+          
+          echo "✅ Successfully created and pushed tag: $new_tag"
